@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PubmedArticleSet>
+  <PubmedArticle>
+    <MedlineCitation>
+      <PMID>12345678</PMID>
+      <Article>
+        <Journal>
+          <ISSN>1234-5678</ISSN>
+          <JournalIssue>
+            <PubDate>
+              <Year>2025</Year>
+            </PubDate>
+          </JournalIssue>
+          <Title>Radiology AI Journal</Title>
+        </Journal>
+        <ArticleTitle>Deep Learning for CT Segmentation</ArticleTitle>
+        <Abstract>
+          <AbstractText>First abstract paragraph.</AbstractText>
+          <AbstractText>Second paragraph.</AbstractText>
+        </Abstract>
+        <AuthorList>
+          <Author>
+            <LastName>Sato</LastName>
+            <ForeName>Taro</ForeName>
+          </Author>
+          <Author>
+            <LastName>Tanaka</LastName>
+            <ForeName>Hanako</ForeName>
+          </Author>
+        </AuthorList>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+  <PubmedArticle>
+    <MedlineCitation>
+      <PMID>87654321</PMID>
+      <Article>
+        <Journal>
+          <JournalIssue>
+            <PubDate>
+              <MedlineDate>2024 Jan-Feb</MedlineDate>
+            </PubDate>
+          </JournalIssue>
+          <Title>Imaging Insights</Title>
+        </Journal>
+        <ArticleTitle>MRI Classification Advances</ArticleTitle>
+        <Abstract>
+          <AbstractText>Single paragraph.</AbstractText>
+        </Abstract>
+        <AuthorList>
+          <Author>
+            <LastName>Lee</LastName>
+            <ForeName>Chris</ForeName>
+          </Author>
+          <Author>
+            <LastName>Kim</LastName>
+            <ForeName>Alex</ForeName>
+          </Author>
+          <Author>
+            <LastName>Diaz</LastName>
+            <ForeName>Maria</ForeName>
+          </Author>
+          <Author>
+            <LastName>Long</LastName>
+            <ForeName>TooMany</ForeName>
+          </Author>
+        </AuthorList>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+</PubmedArticleSet>
