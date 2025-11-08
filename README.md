@@ -1,70 +1,71 @@
-# CT/MRI×AI Weekly Archive (WIP)
+# CT/MRI×AI Weekly Archive
 
-## コンセプト
-- CT/MRI を用いた医用画像 AI（segmentation / detection / classification / reconstruction 等）の新着論文を毎週自動収集。
-- Gemini API で Weekly Kaggle News 風の日本語ダイジェストを生成し、Buttondown ニュースレターとして自動配信。
-- 生成した Markdown を GitHub `issues/` ディレクトリに保存し、バックナンバーを検索可能にする。
+CT/MRI を扱う医用画像 AI（segmentation / detection / classification / reconstruction）の最新論文を自動収集し、Gemini API で週刊ニュースレターを生成して Buttondown から配信、Markdown を GitHub `issues/` ディレクトリに保存するリポジトリです。
 
-## 目標アーキテクチャ
-1. **データ収集**: PubMed E-utilities（必要に応じて arXiv / RSS を追加）。
-2. **要約生成**: Gemini 1.5 Pro API。テンプレ（Top Picks / Method / Dataset / Review / 編集後記）固定。
-3. **配信**: Buttondown REST API (`POST /v1/emails`) で即時送信 or ドラフト作成。
-4. **自動化**: GitHub Actions (cron + workflow_dispatch) で週次実行、`issues/` の diff を自動コミット。
+## アーキテクチャ概要
+1. **データ収集**: PubMed E-utilities（必要に応じて arXiv / RSS を将来追加予定）。
+2. **要約生成**: Gemini 1.5 Pro API。`config/newsletter_template.yaml` でセクション構成・プロンプトを管理し、Markdown を生成。
+3. **配信**: Buttondown REST API（`POST /v1/emails`）で即時送信またはドラフト作成。
+4. **自動化**: GitHub Actions（cron + workflow_dispatch）で週次実行し、`issues/` の差分を自動コミット。
 
 ## 使用技術
-- Python 3.11（uv 管理）
-- requests / python-dateutil / markdown
+- Python 3.11（uv で環境・依存を管理）
+- requests / python-dateutil / markdown / PyYAML
 - GitHub Actions
 - Buttondown API / Gemini API / PubMed E-utilities
 
-## ディレクトリ方針
+## ディレクトリ構成
 ```
 .
+├── config/
+│   └── newsletter_template.yaml  # Gemini 用プロンプトとセクション定義
 ├── docs/
-│   ├── studyplan.md   # 実験計画（本ファイルに従って作業）
-│   └── studynote.md   # 進捗・検証ログ
-├── issues/            # 自動生成される各号の Markdown
-├── scripts/           # ローカル実行用スクリプト（予定）
-├── src/               # 実装コード（予定）
-└── .github/workflows/ # CI/CD（newsletter-buttondown.yml 予定）
+│   ├── studyplan.md              # 実験計画（本ファイルに従って作業）
+│   └── studynote.md              # 進捗・検証ログ
+├── issues/                       # 自動生成される週刊 Markdown
+├── scripts/                      # ローカル実行エントリポイント
+├── src/                          # 実装コード
+└── .github/workflows/            # CI/CD（newsletter-buttondown.yml）
 ```
 
-## Secrets / 設定 (予定)
+## Secrets / 環境変数
 | 名前 | 用途 |
 | --- | --- |
 | `GEMINI_API_KEY` | Gemini API 呼び出し |
 | `PUBMED_API_KEY` | PubMed レート制限緩和（任意） |
 | `BUTTONDOWN_API_KEY` | Buttondown メール送信 |
-| `BUTTONDOWN_STATUS` | `sent` / `draft`（任意。未設定時は `sent`） |
-| `PUBMED_QUERY` | 既定クエリを上書きする場合（任意） |
-| `PUBMED_RELDAYS` / `PUBMED_RETMAX` | 取得期間 / 件数の上書き（任意） |
+| `BUTTONDOWN_STATUS` | `sent` / `draft`（未設定時は `sent`） |
+| `NEWSLETTER_TEMPLATE_PATH` | テンプレファイルのパス（既定: `config/newsletter_template.yaml`） |
+| `PUBMED_QUERY` | デフォルトクエリの上書き（任意） |
+| `PUBMED_RELDAYS` / `PUBMED_RETMAX` | 取得期間・件数の上書き（任意） |
 
-## 実験ルール
-- すべての検証は `docs/studyplan.md` に沿って進め、結果・気付きは `docs/studynote.md` に追記。
-- Python 実行環境は uv + 3.11 固定。依存は `pyproject.toml` / `uv.lock` で管理。
-- 外部 API キーやシークレットは GitHub Secrets のみで扱い、リポジトリに平文保存しない。
+ローカル実行用に `.env.sample` を提供しています。必要な環境変数を書き込み、`source .env` などで読み込んでください。
 
-## ローカル実行
-1. 環境変数を設定（例: `cp .env.sample .env` を将来追加予定 / 直接 `export` でも可）。
+## 実行ルール
+- すべての検証は `docs/studyplan.md` に沿って進め、結果や気付きは `docs/studynote.md` に追記します。
+- Python 実行環境は uv + 3.11 固定。依存は `pyproject.toml` と `uv.lock` で管理します。
+- Secrets や API キーは GitHub Secrets あるいはローカル `.env` に保持し、リポジトリに直書きしません。
+
+## ローカル実行手順
+1. `.env.sample` を `.env` にコピーし、必要なキーと設定を入力（`NEWSLETTER_TEMPLATE_PATH` を変更する場合はここで指定）。
 2. 依存インストール: `uv sync`.
-3. ニュースレター生成＆配信: `uv run python scripts/run_pipeline.py`.
-   - Buttondown をドラフトで止めたい場合は `BUTTONDOWN_STATUS=draft` を指定。
+3. ニュースレター生成＋配信: `uv run python scripts/run_pipeline.py`.
+   - ドラフト送信で止める場合は `.env` で `BUTTONDOWN_STATUS=draft` を指定。
 
 ## テスト
-- PubMed クライアント中心のユニットテストを `pytest` で提供。`uv run pytest` で実行。
-- 今後は Gemini/ Buttondown をモック化した統合テストも追加予定。
+- PubMed クライアントとニュースレタージェネレータの単体テストを `pytest` で提供（`uv run pytest`）。
+- 今後 Gemini / Buttondown をモック化した統合テストも追加予定。
 
 ## CI/CD
-- `.github/workflows/newsletter-buttondown.yml` で週次（月曜00:00 UTC）に以下を実施:
-  1. uv で依存解決
-  2. `pytest`
-  3. `scripts/run_pipeline.py` を実行（APIキーは GitHub Secrets から注入）
+- `.github/workflows/newsletter-buttondown.yml` が毎週月曜 00:00 UTC に実行:
+  1. `uv sync --frozen`
+  2. `uv run pytest`
+  3. `uv run python scripts/run_pipeline.py`
   4. `issues/` の差分を自動コミット
 
 ## 今後のロードマップ
-1. uv で Python プロジェクト初期化、基本依存を追加。
-2. PubMed クライアント実装とユニットテスト。
-3. Gemini プロンプトテンプレ設計＆検証。
-4. Buttondown API 連携スクリプト実装。
-5. GitHub Actions ワークフロー作成。
-6. モニタリング・拡張計画（追加データソース、ランキング、アナリティクスなど）。
+1. PubMed クエリ改善とレート制御
+2. Gemini プロンプト／テンプレのチューニング
+3. Buttondown API のドラフト運用とログ拡充
+4. GitHub Actions のリトライ・監視整備
+5. 追加データソース（arXiv / Semantic Scholar）の連携

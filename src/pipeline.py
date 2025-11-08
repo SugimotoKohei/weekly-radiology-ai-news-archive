@@ -3,12 +3,12 @@ from __future__ import annotations
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, cast
 
 from dateutil import tz
 
-from buttondown_client import ButtondownClient
-from newsletter_generator import NewsletterGenerator
+from buttondown_client import ButtondownClient, EmailStatus
+from newsletter_generator import DEFAULT_TEMPLATE_PATH, NewsletterGenerator, NewsletterTemplate
 from pubmed_client import PubMedClient
 
 DEFAULT_QUERY = (
@@ -59,7 +59,9 @@ def run_pipeline() -> None:
         print("[INFO] No new PubMed articles found. Exiting.")
         return
 
-    generator = NewsletterGenerator(api_key=_ensure_env("GEMINI_API_KEY"))
+    template_path = Path(os.getenv("NEWSLETTER_TEMPLATE_PATH", str(DEFAULT_TEMPLATE_PATH)))
+    template = NewsletterTemplate.from_file(template_path)
+    generator = NewsletterGenerator(api_key=_ensure_env("GEMINI_API_KEY"), template=template)
     newsletter_md = generator.generate(papers, today_str)
 
     issues_path = _issues_dir()
@@ -72,7 +74,8 @@ def run_pipeline() -> None:
         raise RuntimeError("BUTTONDOWN_STATUS must be 'sent' or 'draft'")
     buttondown = ButtondownClient(api_key=_ensure_env("BUTTONDOWN_API_KEY"))
     subject = f"CT/MRI×AI Weekly #{issue_no} - {today_str}"
-    buttondown.send_email(subject=subject, body=newsletter_md, status=buttondown_status)  # type: ignore[arg-type]
+    email_status = cast(EmailStatus, buttondown_status)
+    buttondown.send_email(subject=subject, body=newsletter_md, status=email_status)
     print("[INFO] Buttondown email request submitted")
 
 

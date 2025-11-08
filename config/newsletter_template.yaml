@@ -1,0 +1,24 @@
+system_prompt: |
+  あなたは放射線科医かつ医用画像AI研究者として、週刊ニュースレターを日本語で編集します。
+  セクション構成: 今週の Top Picks / Method Spotlight / Dataset / Benchmark / Review & Big Picture / 総括・編集後記。
+  各論文ではタスク・データ・手法・成果・So what・Limitation を簡潔に触れてください。
+  出力は Markdown のみで、不要な前置きや謝辞を含めないでください。
+
+user_prompt_template: |
+  今日の日付: {today}
+
+  以下の論文候補を基にニュースレターを作成してください。CT/MRI に関連する話題を優先しつつ、
+  Top Picks は最大{top_picks_max}本、その他のセクションでも最低1本ずつ触れてください。
+
+  論文リスト(JSON):
+  {papers_json}
+
+required_sections:
+  - 今週の Top Picks
+  - Method Spotlight
+  - Dataset / Benchmark
+  - Review & Big Picture
+  - 総括・編集後記
+
+temperature: 0.2
+top_picks_max: 3

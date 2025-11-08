@@ -23,6 +23,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PUBMED_API_KEY: ${{ secrets.PUBMED_API_KEY }}
           BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
+          NEWSLETTER_TEMPLATE_PATH: config/newsletter_template.yaml
         run: uv run python scripts/run_pipeline.py
       - name: Commit newsletter archive
         run: |
