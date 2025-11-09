@@ -8,7 +8,7 @@ from typing import Iterable, List, Sequence
 import requests
 import yaml
 
-from .pubmed_client import PubMedPaper
+from src.pubmed_client import PubMedPaper
 
 
 GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent"

@@ -55,3 +55,6 @@
 - `uv run pytest` で再度 5 件のテストが成功することを確認。
 ### 2025-11-08 CI再発防止
 - `.github/workflows/newsletter-buttondown.yml` の pipeline ステップで `PYTHONPATH` にリポジトリルートと `src` を追加し、GitHub Actions 実行時の import パスを固定。
+### 2025-11-09 追加対策
+- CI 上で確実に import できるよう、`src/pipeline.py` と `src/newsletter_generator.py` の内部参照を `from src.*` 形式の絶対インポートに変更。
+- `uv run pytest` を再実行し、全テストが成功することを確認。

@@ -7,9 +7,13 @@ from typing import List, cast
 
 from dateutil import tz
 
-from .buttondown_client import ButtondownClient, EmailStatus
-from .newsletter_generator import DEFAULT_TEMPLATE_PATH, NewsletterGenerator, NewsletterTemplate
-from .pubmed_client import PubMedClient
+from src.buttondown_client import ButtondownClient, EmailStatus
+from src.newsletter_generator import (
+    DEFAULT_TEMPLATE_PATH,
+    NewsletterGenerator,
+    NewsletterTemplate,
+)
+from src.pubmed_client import PubMedClient
 
 DEFAULT_QUERY = (
     "(deep learning[Title/Abstract] OR artificial intelligence[Title/Abstract])"
