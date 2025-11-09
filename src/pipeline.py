@@ -89,22 +89,19 @@ def run_pipeline() -> None:
     buttondown_status = os.getenv("BUTTONDOWN_STATUS", "sent")
     if buttondown_status not in {"sent", "draft"}:
         raise RuntimeError("BUTTONDOWN_STATUS must be 'sent' or 'draft'")
-    buttondown_send_enabled = os.getenv("BUTTONDOWN_SEND_ENABLED", "true").lower() == "true"
-    if buttondown_send_enabled:
-        buttondown = ButtondownClient(api_key=_ensure_env("BUTTONDOWN_API_KEY"))
-        subject = f"CT/MRI×AI Weekly #{issue_no} - {today_str}"
-        email_status = cast(EmailStatus, buttondown_status)
-        try:
-            buttondown.send_email(
-                subject=subject,
-                body=newsletter_md,
-                status=email_status,
-            )
-            print("[INFO] Buttondown email request submitted")
-        except RuntimeError as err:
-            print(f"[WARNING] Buttondown send failed: {err}")
-    else:
-        print("[INFO] BUTTONDOWN_SEND_ENABLED=false. Skipping email send.")
+    buttondown = ButtondownClient(api_key=_ensure_env("BUTTONDOWN_API_KEY"))
+    subject = f"CT/MRI×AI Weekly #{issue_no} - {today_str}"
+    email_status = cast(EmailStatus, buttondown_status)
+    try:
+        buttondown.send_email(
+            subject=subject,
+            body=newsletter_md,
+            status=email_status,
+        )
+        print("[INFO] Buttondown email request submitted")
+    except RuntimeError as err:
+        print(f"[ERROR] Buttondown send failed: {err}")
+        raise
 
 
 if __name__ == "__main__":

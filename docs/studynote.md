@@ -77,4 +77,4 @@
 - README / studyplan にフォールバック環境変数の説明を追加。
 ### 2025-11-09 Buttondown制御
 - Buttondown API 失敗時のレスポンス本文を表示するよう `ButtondownClient` を更新。
-- `BUTTONDOWN_SEND_ENABLED` フラグを追加し、送信を任意でスキップできるよう `pipeline.py` を調整。失敗時も例外で止まらず警告ログのみ出力。
+- 送信を必須にする要件に合わせ、`pipeline.py` は送信失敗時に例外を再送出し、必ずエラーとして検知できるようにした（`BUTTONDOWN_SEND_ENABLED` は廃止）。

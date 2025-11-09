@@ -75,7 +75,6 @@
   - headers: `Authorization: Token $BUTTONDOWN_API_KEY`, `Content-Type: application/json`
   - body: `subject`, `body` (Markdown), `status`（既定 `sent`）
 - **失敗対策**: ステータスコード 300 以上で例外。レスポンス本文をログ出力。
-- **送信制御**: `BUTTONDOWN_SEND_ENABLED=false` でメール送信をスキップしつつアーカイブのみ実行可能。
 - **未来拡張**: `status="draft"` + `/send-draft` をパラメータで切り替え可能にする。
 
 ### 8.4 パイプライン統合
