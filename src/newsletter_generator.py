@@ -80,7 +80,8 @@ class NewsletterGenerator:
                     return text.strip()
                 last_error = RuntimeError("Generated content missing required sections")
             payload["generationConfig"]["temperature"] = max(0.0, self.temperature - 0.05 * (attempt + 1))
-        raise RuntimeError(f"Newsletter generation failed: {last_error}")
+        fallback = self._build_fallback_content(papers, today_str, last_error)
+        return fallback
 
     def _build_payload(self, papers: Sequence[PubMedPaper], today_str: str) -> dict:
         paper_dicts = [paper.to_dict() for paper in papers]
@@ -120,6 +121,58 @@ class NewsletterGenerator:
     def _has_required_sections(text: str, sections: Sequence[str]) -> bool:
         lowered = text.lower()
         return all(section.lower() in lowered for section in sections)
+
+    def _build_fallback_content(
+        self,
+        papers: Sequence[PubMedPaper],
+        today_str: str,
+        error: Exception | None,
+    ) -> str:
+        reason = str(error) if error else "unknown error"
+        sections = list(self.template.required_sections)
+        lines: List[str] = [
+            "# CT/MRI×AI Weekly (Fallback Mode)",
+            "",
+            f"- Date: {today_str}",
+            f"- Status: Gemini generation failed ({reason})",
+            "",
+            "---",
+            "",
+        ]
+        # Top picks fallback
+        lines.append("## 今週の Top Picks (Fallback)")
+        highlighted = papers[: self.template.top_picks_max]
+        if not highlighted:
+            lines.append("- 今週は該当論文が取得できませんでした。")
+        else:
+            for paper in highlighted:
+                meta_parts = []
+                if paper.journal:
+                    meta_parts.append(paper.journal)
+                if paper.pub_year:
+                    meta_parts.append(str(paper.pub_year))
+                meta = ", ".join(meta_parts) if meta_parts else "N/A"
+                bullet = f"- [{paper.title}]({paper.link}) — {meta}"
+                if paper.abstract:
+                    bullet += f"\n  - {paper.abstract[:140]}..."
+                lines.append(bullet)
+        # Other sections placeholder
+        remaining = [s for s in sections if s != "今週の Top Picks"]
+        for section in remaining:
+            lines.extend(
+                [
+                    "",
+                    f"## {section} (Fallback)",
+                    "- Gemini API に接続できなかったため、このセクションは簡易記録のみです。",
+                ]
+            )
+        lines.extend(
+            [
+                "",
+                "_This issue was auto-generated without LLM summarization due to an upstream error._",
+            ]
+        )
+        return "\n".join(lines)
 
 
 __all__ = [

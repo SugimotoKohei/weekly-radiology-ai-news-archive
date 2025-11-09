@@ -61,3 +61,7 @@
 ### 2025-11-09 APIキー整形
 - PubMed E-utilities が 400 を返していた原因は Secrets に含まれる末尾タブ/改行だったため、`PubMedClient` で `api_key.strip()` を行い不要な空白を除去。
 - 同時にユニットテストで API キーがトリムされることを検証し、`uv run pytest` を再実行して成功を確認。
+### 2025-11-09 Fallback生成
+- Gemini API が 404 を返すケースに備え、`NewsletterGenerator.generate` で再試行後にフォールバックMarkdownを生成するよう変更。論文タイトル・リンクのみの簡易構成で配信を継続可能にした。
+- `tests/test_newsletter_generator.py` に HTTPError をモックしてフォールバック文字列を検証するテストを追加。
+- `uv run pytest` (6件) を再実行し、すべて成功。
