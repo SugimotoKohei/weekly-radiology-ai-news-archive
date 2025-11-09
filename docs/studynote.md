@@ -53,3 +53,5 @@
 - `src` 内モジュールを相互参照する際に CI で import エラーが再発したため、`src/pipeline.py` / `src/newsletter_generator.py` を相対インポートに統一。
 - テストからは `src` パッケージを直接 import するよう変更しつつ、`sys.path` にプロジェクトルートを追加して pytest でも解決できるよう対応。
 - `uv run pytest` で再度 5 件のテストが成功することを確認。
+### 2025-11-08 CI再発防止
+- `.github/workflows/newsletter-buttondown.yml` の pipeline ステップで `PYTHONPATH` にリポジトリルートと `src` を追加し、GitHub Actions 実行時の import パスを固定。

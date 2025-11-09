@@ -24,6 +24,7 @@ jobs:
           PUBMED_API_KEY: ${{ secrets.PUBMED_API_KEY }}
           BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
           NEWSLETTER_TEMPLATE_PATH: config/newsletter_template.yaml
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
         run: uv run python scripts/run_pipeline.py
       - name: Commit newsletter archive
         run: |
