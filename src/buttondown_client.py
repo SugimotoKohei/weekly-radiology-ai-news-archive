@@ -28,7 +28,11 @@ class ButtondownClient:
             "Content-Type": "application/json",
         }
         resp = requests.post(self.api_url, headers=headers, json=payload, timeout=60)
-        resp.raise_for_status()
+        if resp.status_code >= 400:
+            raise RuntimeError(
+                "Buttondown API error "
+                f"{resp.status_code}: {resp.text.strip()}"
+            )
         return resp.json()
 
 

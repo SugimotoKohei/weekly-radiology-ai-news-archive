@@ -75,3 +75,6 @@
 ### 2025-11-09 PubMedフォールバック
 - `PUBMED_FALLBACK_RELDAYS`（既定30日）を導入し、直近期間で論文が0件でも自動で期間を広げて再検索するよう `src/pipeline.py` を更新。
 - README / studyplan にフォールバック環境変数の説明を追加。
+### 2025-11-09 Buttondown制御
+- Buttondown API 失敗時のレスポンス本文を表示するよう `ButtondownClient` を更新。
+- `BUTTONDOWN_SEND_ENABLED` フラグを追加し、送信を任意でスキップできるよう `pipeline.py` を調整。失敗時も例外で止まらず警告ログのみ出力。

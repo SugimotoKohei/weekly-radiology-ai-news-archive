@@ -36,6 +36,7 @@ CT/MRI を扱う医用画像 AI（segmentation / detection / classification / re
 | `PUBMED_API_KEY` | PubMed レート制限緩和（任意） |
 | `BUTTONDOWN_API_KEY` | Buttondown メール送信 |
 | `BUTTONDOWN_STATUS` | `sent` / `draft`（未設定時は `sent`） |
+| `BUTTONDOWN_SEND_ENABLED` | `false` の場合は Buttondown 送信をスキップ |
 | `NEWSLETTER_TEMPLATE_PATH` | テンプレファイルのパス（既定: `config/newsletter_template.yaml`） |
 | `PUBMED_QUERY` | デフォルトクエリの上書き（任意） |
 | `PUBMED_RELDAYS` / `PUBMED_RETMAX` | 取得期間・件数の上書き（任意） |
