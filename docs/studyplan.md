@@ -38,7 +38,7 @@
 - **LLM 出力揺らぎ**: セクション検証ロジック＋リトライを実装。
 - **API レート制限**: PubMed で retmax 調整、キャッシュ導入を検討。
 - **Buttondown 無料枠超過**: `docs/studynote.md` に購読者推移を記録し、100人超で早期対応。
-- **Secrets 漏えい**: `.env` をコミット禁止にし、GitHub Secrets のみ使用。README で明文化。
+- **Secrets 漏えい**: API キーは GitHub Secrets またはローカルの非公開 `.env.local` に保持し、レポジトリには一切含めない。
 
 ## 7. 次アクション
 - 本計画に基づき README 骨子および uv プロジェクト初期化を完了する。
@@ -80,7 +80,7 @@
   4. `issues/` に `YYYY-MM-DD_ct-mri-ai-weekly-XXX.md` を保存。
   5. Buttondown API へ送信。
   6. stdout に件数・ファイルパス・送信結果を記録。
-- **設定注入**: すべて環境変数経由。ローカル用に `.env.sample` を提供済み（Secrets は含めない）。
+- **設定注入**: すべて環境変数経由。ローカルでは `.env.local`（Git 忽）やシェル `export` で設定し、Secrets をリポジトリに含めない。
 
 ### 8.5 GitHub Actions 設計
 - **Workflow**: `.github/workflows/newsletter-buttondown.yml`

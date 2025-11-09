@@ -65,3 +65,7 @@
 - Gemini API が 404 を返すケースに備え、`NewsletterGenerator.generate` で再試行後にフォールバックMarkdownを生成するよう変更。論文タイトル・リンクのみの簡易構成で配信を継続可能にした。
 - `tests/test_newsletter_generator.py` に HTTPError をモックしてフォールバック文字列を検証するテストを追加。
 - `uv run pytest` (6件) を再実行し、すべて成功。
+### 2025-11-09 Secrets管理
+- `.env.sample` を削除し、API キーは GitHub Secrets / ローカル非公開 `.env.local` のみに保持する方針へ切り替え。
+- README と docs/studyplan を更新し、ローカル実行手順から `.env.sample` への依存を除去。
+- `.gitignore` に `.env*` を追加し、誤ってコミットしないようにした。

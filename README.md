@@ -39,18 +39,18 @@ CT/MRI を扱う医用画像 AI（segmentation / detection / classification / re
 | `PUBMED_QUERY` | デフォルトクエリの上書き（任意） |
 | `PUBMED_RELDAYS` / `PUBMED_RETMAX` | 取得期間・件数の上書き（任意） |
 
-ローカル実行用に `.env.sample` を提供しています。必要な環境変数を書き込み、`source .env` などで読み込んでください。
+ローカル開発では、これらの変数をシェルで `export` するか、**Git 管理下に置かない** `.env.local` などのファイルから読み込んでください。API キーや Secrets をリポジトリに含めることは絶対に避けてください。
 
 ## 実行ルール
 - すべての検証は `docs/studyplan.md` に沿って進め、結果や気付きは `docs/studynote.md` に追記します。
 - Python 実行環境は uv + 3.11 固定。依存は `pyproject.toml` と `uv.lock` で管理します。
-- Secrets や API キーは GitHub Secrets あるいはローカル `.env` に保持し、リポジトリに直書きしません。
+- Secrets や API キーは GitHub Secrets あるいはローカルの非公開 `.env.local` に保持し、リポジトリに直書きしません。
 
 ## ローカル実行手順
-1. `.env.sample` を `.env` にコピーし、必要なキーと設定を入力（`NEWSLETTER_TEMPLATE_PATH` を変更する場合はここで指定）。
+1. 必要な環境変数（`GEMINI_API_KEY`, `BUTTONDOWN_API_KEY` など）を `export KEY=value` で設定するか、`.env.local`（Git で無視）を `source` して読み込む。
 2. 依存インストール: `uv sync`.
 3. ニュースレター生成＋配信: `uv run python scripts/run_pipeline.py`.
-   - ドラフト送信で止める場合は `.env` で `BUTTONDOWN_STATUS=draft` を指定。
+   - ドラフト送信で止める場合は `BUTTONDOWN_STATUS=draft` を環境変数として渡す。
 
 ## テスト
 - PubMed クライアントとニュースレタージェネレータの単体テストを `pytest` で提供（`uv run pytest`）。
