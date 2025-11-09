@@ -46,3 +46,6 @@
 ### 2025-11-08 Actions対応
 - GitHub Actions で `ModuleNotFoundError: src` が発生したため、`scripts/run_pipeline.py` にプロジェクトルートを `sys.path` へ追加する処理を挿入し、CI/ローカルの双方で同一エントリポイントを利用可能にした。
 - 修正後 `uv run pytest` を再実行し、全テスト成功を確認。
+### 2025-11-08 再修正
+- CI 実行時に `buttondown_client` モジュールが解決できなかったため、`scripts/run_pipeline.py` で `PROJECT_ROOT/src` も `sys.path` に追加するよう修正。
+- `uv run pytest` を再実行し、すべてのテストが成功することを確認。
