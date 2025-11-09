@@ -26,7 +26,7 @@ class PubMedPaper:
 
 class PubMedClient:
     def __init__(self, api_key: Optional[str] = None, session: Optional[requests.Session] = None) -> None:
-        self.api_key = api_key
+        self.api_key = api_key.strip() if api_key else None
         self.session = session or requests.Session()
 
     def search_pmids(self, query: str, *, days: int = 7, retmax: int = 40) -> List[str]:

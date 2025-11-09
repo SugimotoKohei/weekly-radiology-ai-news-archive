@@ -58,3 +58,6 @@
 ### 2025-11-09 追加対策
 - CI 上で確実に import できるよう、`src/pipeline.py` と `src/newsletter_generator.py` の内部参照を `from src.*` 形式の絶対インポートに変更。
 - `uv run pytest` を再実行し、全テストが成功することを確認。
+### 2025-11-09 APIキー整形
+- PubMed E-utilities が 400 を返していた原因は Secrets に含まれる末尾タブ/改行だったため、`PubMedClient` で `api_key.strip()` を行い不要な空白を除去。
+- 同時にユニットテストで API キーがトリムされることを検証し、`uv run pytest` を再実行して成功を確認。

@@ -50,11 +50,12 @@ def sample_xml() -> bytes:
 def test_search_pmids_returns_id_list():
     session = StubSession()
     session.queue_response(StubResponse(json_data={"esearchresult": {"idlist": ["1", "2"]}}))
-    client = PubMedClient(api_key=None, session=session)
+    client = PubMedClient(api_key="  key-with-space  \n", session=session)
     ids = client.search_pmids("ct", days=3, retmax=5)
     assert ids == ["1", "2"]
     assert session.requests[0]["params"]["reldate"] == 3
     assert session.requests[0]["params"]["retmax"] == 5
+    assert session.requests[0]["params"]["api_key"] == "key-with-space"
 
 
 def test_fetch_details_parses_minimal_fields(sample_xml):
