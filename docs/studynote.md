@@ -49,3 +49,7 @@
 ### 2025-11-08 再修正
 - CI 実行時に `buttondown_client` モジュールが解決できなかったため、`scripts/run_pipeline.py` で `PROJECT_ROOT/src` も `sys.path` に追加するよう修正。
 - `uv run pytest` を再実行し、すべてのテストが成功することを確認。
+### 2025-11-08 パッケージ化
+- `src` 内モジュールを相互参照する際に CI で import エラーが再発したため、`src/pipeline.py` / `src/newsletter_generator.py` を相対インポートに統一。
+- テストからは `src` パッケージを直接 import するよう変更しつつ、`sys.path` にプロジェクトルートを追加して pytest でも解決できるよう対応。
+- `uv run pytest` で再度 5 件のテストが成功することを確認。

@@ -1,12 +1,11 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SRC_DIR = PROJECT_ROOT / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from newsletter_generator import (  # noqa: E402
+from src.newsletter_generator import (
     DEFAULT_REQUIRED_SECTIONS,
     DEFAULT_TEMPLATE_PATH,
     NewsletterGenerator,
