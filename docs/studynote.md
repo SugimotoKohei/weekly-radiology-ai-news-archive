@@ -43,3 +43,6 @@
 - `tests/test_newsletter_generator.py` にテンプレ読込テストと定義チェックを追加し、設定ファイル破損を早期発見できるようにした。
 - `uv run pytest` を再実行し、追加テストを含めて 5 件が通過することを確認。
 - GitHub Actions の workflow に `NEWSLETTER_TEMPLATE_PATH` を明示し、Secrets（GEMINI/PUBMED/BUTTONDOWN）を使って定期実行できる状態を確認。
+### 2025-11-08 Actions対応
+- GitHub Actions で `ModuleNotFoundError: src` が発生したため、`scripts/run_pipeline.py` にプロジェクトルートを `sys.path` へ追加する処理を挿入し、CI/ローカルの双方で同一エントリポイントを利用可能にした。
+- 修正後 `uv run pytest` を再実行し、全テスト成功を確認。
