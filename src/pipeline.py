@@ -86,9 +86,12 @@ def run_pipeline() -> None:
     md_path = _save_issue_markdown(today_str, issue_no, newsletter_md)
     print(f"[INFO] Saved newsletter markdown to {md_path}")
 
-    buttondown_status = os.getenv("BUTTONDOWN_STATUS", "sent")
-    if buttondown_status not in {"sent", "draft"}:
-        raise RuntimeError("BUTTONDOWN_STATUS must be 'sent' or 'draft'")
+    valid_statuses = {"draft", "about_to_send", "scheduled", "imported", "transactional", "sent"}
+    buttondown_status = os.getenv("BUTTONDOWN_STATUS", "draft")
+    if buttondown_status not in valid_statuses:
+        raise RuntimeError(
+            "BUTTONDOWN_STATUS must be one of " + ", ".join(sorted(valid_statuses))
+        )
     buttondown = ButtondownClient(api_key=_ensure_env("BUTTONDOWN_API_KEY"))
     subject = f"CT/MRI×AI Weekly #{issue_no} - {today_str}"
     email_status = cast(EmailStatus, buttondown_status)

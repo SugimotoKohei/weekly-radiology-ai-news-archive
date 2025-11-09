@@ -7,7 +7,14 @@ import requests
 
 BUTTONDOWN_API_URL = "https://api.buttondown.com/v1/emails"
 
-EmailStatus = Literal["draft", "sent"]
+EmailStatus = Literal[
+    "draft",
+    "about_to_send",
+    "scheduled",
+    "imported",
+    "transactional",
+    "sent",
+]
 
 
 class ButtondownClient:
@@ -17,7 +24,7 @@ class ButtondownClient:
         self.api_key = api_key
         self.api_url = api_url
 
-    def send_email(self, *, subject: str, body: str, status: EmailStatus = "sent") -> dict:
+    def send_email(self, *, subject: str, body: str, status: EmailStatus = "draft") -> dict:
         payload = {
             "subject": subject,
             "body": body,

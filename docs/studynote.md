@@ -78,3 +78,6 @@
 ### 2025-11-09 Buttondown制御
 - Buttondown API 失敗時のレスポンス本文を表示するよう `ButtondownClient` を更新。
 - 送信を必須にする要件に合わせ、`pipeline.py` は送信失敗時に例外を再送出し、必ずエラーとして検知できるようにした（`BUTTONDOWN_SEND_ENABLED` は廃止）。
+### 2025-11-09 Buttondownステータス
+- Buttondown API の有効ステータスを Literal に反映し、デフォルトを `draft` に変更。`BUTTONDOWN_STATUS` で `about_to_send` などを指定できるようにした。
+- README / studyplan に対応する説明を追加。
