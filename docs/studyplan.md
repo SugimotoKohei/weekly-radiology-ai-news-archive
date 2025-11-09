@@ -65,6 +65,11 @@
 - **設定**: `temperature=0.2`（テンプレートファイルで上書き可）。
 - **モデル切替**: `GEMINI_MODEL` 環境変数で任意のモデル（例: `gemini-2.5-pro`）に変更可能。未設定時は `gemini-2.5-flash`。
 
+### 8.3.1 PubMed フォールバック検索
+- **目的**: 直近期間で論文が0件のときも Gemini 生成まで進める。
+- **動作**: `PUBMED_FALLBACK_RELDAYS`（既定:30日）を参照し、最初の検索が空なら自動で期間を広げて再試行。
+- **設定**: `PUBMED_RELDAYS` より小さい値が指定された場合は自動的に無視される。
+
 ### 8.3 Buttondown 配信要件
 - **API**: `POST https://api.buttondown.com/v1/emails`
   - headers: `Authorization: Token $BUTTONDOWN_API_KEY`, `Content-Type: application/json`

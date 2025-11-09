@@ -55,12 +55,25 @@ def run_pipeline() -> None:
     today_str = today.strftime("%Y-%m-%d")
     query = os.getenv("PUBMED_QUERY", DEFAULT_QUERY)
     days = int(os.getenv("PUBMED_RELDAYS", "7"))
+    fallback_days = int(os.getenv("PUBMED_FALLBACK_RELDAYS", "30"))
+    if fallback_days < days:
+        fallback_days = days
     retmax = int(os.getenv("PUBMED_RETMAX", "40"))
 
     pubmed_client = PubMedClient(api_key=os.getenv("PUBMED_API_KEY"))
     papers = pubmed_client.get_recent_papers(query, days=days, retmax=retmax)
+    if not papers and fallback_days > days:
+        print(
+            f"[INFO] No PubMed articles found in last {days} days. "
+            f"Retrying with {fallback_days} days."
+        )
+        papers = pubmed_client.get_recent_papers(
+            query,
+            days=fallback_days,
+            retmax=retmax,
+        )
     if not papers:
-        print("[INFO] No new PubMed articles found. Exiting.")
+        print("[INFO] No new PubMed articles found even after fallback. Exiting.")
         return
 
     template_path = Path(os.getenv("NEWSLETTER_TEMPLATE_PATH", str(DEFAULT_TEMPLATE_PATH)))

@@ -39,6 +39,7 @@ CT/MRI を扱う医用画像 AI（segmentation / detection / classification / re
 | `NEWSLETTER_TEMPLATE_PATH` | テンプレファイルのパス（既定: `config/newsletter_template.yaml`） |
 | `PUBMED_QUERY` | デフォルトクエリの上書き（任意） |
 | `PUBMED_RELDAYS` / `PUBMED_RETMAX` | 取得期間・件数の上書き（任意） |
+| `PUBMED_FALLBACK_RELDAYS` | 0件時に再試行する日数（既定: 30） |
 
 ローカル開発では、これらの変数をシェルで `export` するか、**Git 管理下に置かない** `.env.local` などのファイルから読み込んでください。API キーや Secrets をリポジトリに含めることは絶対に避けてください。
 

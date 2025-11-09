@@ -72,3 +72,6 @@
 ### 2025-11-09 Geminiモデル更新
 - `GEMINI_MODEL` 環境変数でモデル名を切り替えられるようにし、デフォルトを `gemini-2.5-flash` に変更（`src/newsletter_generator.py`）。
 - README / studyplan に `GEMINI_MODEL` の説明を追加し、Secrets から柔軟に運用できるようにした。
+### 2025-11-09 PubMedフォールバック
+- `PUBMED_FALLBACK_RELDAYS`（既定30日）を導入し、直近期間で論文が0件でも自動で期間を広げて再検索するよう `src/pipeline.py` を更新。
+- README / studyplan にフォールバック環境変数の説明を追加。
