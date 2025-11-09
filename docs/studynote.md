@@ -69,3 +69,6 @@
 - `.env.sample` を削除し、API キーは GitHub Secrets / ローカル非公開 `.env.local` のみに保持する方針へ切り替え。
 - README と docs/studyplan を更新し、ローカル実行手順から `.env.sample` への依存を除去。
 - `.gitignore` に `.env*` を追加し、誤ってコミットしないようにした。
+### 2025-11-09 Geminiモデル更新
+- `GEMINI_MODEL` 環境変数でモデル名を切り替えられるようにし、デフォルトを `gemini-2.5-flash` に変更（`src/newsletter_generator.py`）。
+- README / studyplan に `GEMINI_MODEL` の説明を追加し、Secrets から柔軟に運用できるようにした。

@@ -32,6 +32,7 @@ CT/MRI を扱う医用画像 AI（segmentation / detection / classification / re
 | 名前 | 用途 |
 | --- | --- |
 | `GEMINI_API_KEY` | Gemini API 呼び出し |
+| `GEMINI_MODEL` | 利用するモデル名（既定: `gemini-2.5-flash`） |
 | `PUBMED_API_KEY` | PubMed レート制限緩和（任意） |
 | `BUTTONDOWN_API_KEY` | Buttondown メール送信 |
 | `BUTTONDOWN_STATUS` | `sent` / `draft`（未設定時は `sent`） |

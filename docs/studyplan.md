@@ -63,6 +63,7 @@
   - Markdown 全体から Top Picks / Method / Dataset / Review / 編集後記の見出しを探索。
   - 不足時は最大2回まで再試行。失敗で例外→Actions を失敗させる。
 - **設定**: `temperature=0.2`（テンプレートファイルで上書き可）。
+- **モデル切替**: `GEMINI_MODEL` 環境変数で任意のモデル（例: `gemini-2.5-pro`）に変更可能。未設定時は `gemini-2.5-flash`。
 
 ### 8.3 Buttondown 配信要件
 - **API**: `POST https://api.buttondown.com/v1/emails`
