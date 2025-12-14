@@ -343,15 +343,14 @@ def generate_summary_image_bytes(
 ) -> bytes:
     url = f"{GEMINI_IMAGE_API_BASE}/{model}:generateContent"
     headers = {"Content-Type": "application/json", "x-goog-api-key": api_key}
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "responseModalities": ["Image"],
-        },
-        "imageConfig": {"aspectRatio": aspect_ratio},
-    }
+    # Follow the Gemini API REST example for image generation: keep the request minimal.
+    # Aspect ratio is expressed in the prompt; optional config fields are API-version dependent.
+    payload = {"contents": [{"parts": [{"text": prompt}]}]}
     resp = requests.post(url, headers=headers, json=payload, timeout=timeout_s)
-    resp.raise_for_status()
+    try:
+        resp.raise_for_status()
+    except requests.HTTPError as exc:
+        raise RuntimeError(f"Gemini image generation failed: {resp.status_code} {resp.text}") from exc
     data = resp.json()
     candidates = data.get("candidates", [])
     if not candidates:
