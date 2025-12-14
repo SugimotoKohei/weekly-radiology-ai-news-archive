@@ -121,8 +121,22 @@ def _enforce_editorial_one_paragraph(markdown: str, *, max_chars: int = 480) -> 
     return markdown[:start] + new_body + markdown[end:]
 
 
+def _remove_so_what(markdown: str) -> str:
+    """Remove 'So what' lines if the model outputs them."""
+    import re
+
+    lines = markdown.splitlines()
+    kept: list[str] = []
+    for line in lines:
+        if re.search(r"\bso what\b", line, flags=re.IGNORECASE):
+            continue
+        kept.append(line)
+    return "\n".join(kept)
+
+
 def _postprocess_newsletter(markdown: str) -> str:
     markdown = _inject_pubmed_links(markdown)
+    markdown = _remove_so_what(markdown)
     markdown = _enforce_editorial_one_paragraph(markdown)
     return markdown
 
