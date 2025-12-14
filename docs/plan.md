@@ -55,3 +55,4 @@
 - `SUMMARY_IMAGE_ASPECT_RATIO`（任意、既定: `16:9`）
 - `SUMMARY_IMAGE_EMBED`（任意、既定: false）
   - `true` のとき、生成した画像を GitHub raw URL で **Top Picks の後（編集後記の前）** に埋め込む（Actions 実行時のみ推奨）。
+  - 現状は画像生成クオータの都合で CI では無効（workflow で未設定）。
