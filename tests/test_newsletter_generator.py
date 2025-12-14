@@ -30,6 +30,25 @@ def test_has_required_sections_returns_true():
     text = "\n".join(DEFAULT_REQUIRED_SECTIONS)
     assert NewsletterGenerator._has_required_sections(text, DEFAULT_REQUIRED_SECTIONS)
 
+def test_has_required_sections_is_robust_to_heading_variants():
+    text = """
+## 今週のTop Picks
+- a
+
+## Method Spotlight
+- b
+
+## Dataset/Benchmark
+- c
+
+## Review and Big Picture
+- d
+
+## 総括・編集後記
+- e
+""".strip()
+    assert NewsletterGenerator._has_required_sections(text, DEFAULT_REQUIRED_SECTIONS)
+
 
 def test_has_required_sections_missing_one_returns_false():
     text = "\n".join(DEFAULT_REQUIRED_SECTIONS[:-1])

@@ -30,6 +30,14 @@ def _ensure_env(name: str) -> str:
     return value
 
 
+def _is_github_actions() -> bool:
+    return os.getenv("GITHUB_ACTIONS", "").lower() == "true"
+
+
+def _actions_send_allowed() -> bool:
+    return os.getenv("BUTTONDOWN_ALLOW_ACTIONS_SEND", "").lower() in {"1", "true", "yes"}
+
+
 def _issues_dir() -> Path:
     path = Path(__file__).resolve().parents[1] / "issues"
     path.mkdir(exist_ok=True)
@@ -46,6 +54,54 @@ def _save_issue_markdown(date_str: str, issue_no: int, content: str) -> Path:
     filename = f"{date_str}_ct-mri-ai-weekly-{issue_no:03d}.md"
     target = issues_path / filename
     target.write_text(content, encoding="utf-8")
+    return target
+
+
+def run_dry_run(*, fixture_path: Path) -> Path:
+    """Dry-run that avoids network calls and creates a debug markdown in issues/."""
+
+    class _StubResponse:
+        def __init__(self, *, content: bytes):
+            self.content = content
+            self.status_code = 200
+
+        def raise_for_status(self) -> None:
+            return None
+
+    class _StubSession:
+        def __init__(self, xml_bytes: bytes):
+            self._xml_bytes = xml_bytes
+
+        def get(self, url, params=None, timeout=None):  # noqa: ANN001
+            return _StubResponse(content=self._xml_bytes)
+
+    if not fixture_path.exists():
+        raise FileNotFoundError(f"Fixture not found: {fixture_path}")
+
+    xml_bytes = fixture_path.read_bytes()
+    client = PubMedClient(session=_StubSession(xml_bytes))
+    papers = client.fetch_details(["dry-run"])
+    if not papers:
+        raise RuntimeError("Dry-run fixture produced 0 papers")
+
+    jst = tz.gettz("Asia/Tokyo")
+    now = datetime.now(tz=jst)
+    today_str = now.strftime("%Y-%m-%d")
+    time_str = now.strftime("%H%M%S")
+
+    template = NewsletterTemplate.from_file(DEFAULT_TEMPLATE_PATH)
+    generator = NewsletterGenerator(api_key="dry-run", template=template)
+    content = generator._build_fallback_content(  # noqa: SLF001
+        papers,
+        today_str,
+        error=RuntimeError("dry-run (no external API calls)"),
+    )
+
+    issues_path = _issues_dir()
+    filename = f"_dry_run_{today_str}_{time_str}.md"
+    target = issues_path / filename
+    target.write_text(content, encoding="utf-8")
+    print(f"[INFO] Dry-run wrote {target}")
     return target
 
 
@@ -92,16 +148,25 @@ def run_pipeline() -> None:
         raise RuntimeError(
             "BUTTONDOWN_STATUS must be one of " + ", ".join(sorted(valid_statuses))
         )
+    if _is_github_actions() and buttondown_status != "draft" and not _actions_send_allowed():
+        raise RuntimeError(
+            "Refusing to send non-draft email in GitHub Actions. "
+            "Set BUTTONDOWN_STATUS=draft, or explicitly opt-in with BUTTONDOWN_ALLOW_ACTIONS_SEND=true."
+        )
     buttondown = ButtondownClient(api_key=_ensure_env("BUTTONDOWN_API_KEY"))
     subject = f"CT/MRI×AI Weekly #{issue_no} - {today_str}"
     email_status = cast(EmailStatus, buttondown_status)
     try:
-        buttondown.send_email(
+        resp = buttondown.send_email(
             subject=subject,
             body=newsletter_md,
             status=email_status,
         )
-        print("[INFO] Buttondown email request submitted")
+        resp_id = resp.get("id") if isinstance(resp, dict) else None
+        if resp_id is not None:
+            print(f"[INFO] Buttondown email request submitted (id={resp_id}, status={email_status})")
+        else:
+            print(f"[INFO] Buttondown email request submitted (status={email_status})")
     except RuntimeError as err:
         print(f"[ERROR] Buttondown send failed: {err}")
         raise
@@ -109,3 +174,6 @@ def run_pipeline() -> None:
 
 if __name__ == "__main__":
     run_pipeline()
+
+
+__all__ = ["run_pipeline", "run_dry_run"]

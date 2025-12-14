@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --locked
       - name: Run tests
         run: uv run pytest
       - name: Execute pipeline
@@ -23,7 +23,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PUBMED_API_KEY: ${{ secrets.PUBMED_API_KEY }}
           BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
-          NEWSLETTER_TEMPLATE_PATH: config/newsletter_template.yaml
+          BUTTONDOWN_STATUS: draft
+          NEWSLETTER_TEMPLATE_PATH: configs/base/newsletter_template.yaml
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
         run: uv run python scripts/run_pipeline.py
       - name: Commit newsletter archive

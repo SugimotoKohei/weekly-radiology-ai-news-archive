@@ -1,7 +1,33 @@
-.DS_Store
-__pycache__/
-*.pyc
+# outputs / data
+output/
+data/
+configs/local/
+
+# environments / caches
 .venv/
 .uv-cache/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# local agent instructions (project-specific)
+AGENTS.md
+
+# local dry-run artifacts
+issues/_dry_run_*.md
+
+# logs
+*.log
+
+# secrets (原則使わないが、万一置くなら絶対に管理しない)
 .env
 .env.*

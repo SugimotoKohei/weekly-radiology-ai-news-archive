@@ -1,7 +1,7 @@
 [project]
 name = "weekly-radiology-ai-news-archive"
 version = "0.1.0"
-description = "Add your description here"
+description = "CT/MRI×AI 関連論文を週次で収集し、ニュースレターを生成・配信してアーカイブする"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

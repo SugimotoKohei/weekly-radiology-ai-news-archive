@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Sequence
@@ -23,7 +24,9 @@ DEFAULT_REQUIRED_SECTIONS = [
     "Review & Big Picture",
     "総括・編集後記",
 ]
-DEFAULT_TEMPLATE_PATH = Path(__file__).resolve().parents[1] / "config" / "newsletter_template.yaml"
+DEFAULT_TEMPLATE_PATH = (
+    Path(__file__).resolve().parents[1] / "configs" / "base" / "newsletter_template.yaml"
+)
 
 
 @dataclass
@@ -122,9 +125,36 @@ class NewsletterGenerator:
         return "\n".join(texts)
 
     @staticmethod
-    def _has_required_sections(text: str, sections: Sequence[str]) -> bool:
-        lowered = text.lower()
-        return all(section.lower() in lowered for section in sections)
+    def _normalize_for_section_match(value: str) -> str:
+        lowered = value.lower()
+        lowered = lowered.replace("＆", "&")
+        lowered = lowered.replace("&", " and ")
+        lowered = lowered.replace("：", ":")
+        lowered = lowered.replace("\u3000", " ")  # full-width space
+        lowered = re.sub(r"[\s#*_`>\-:|/\\]+", "", lowered)
+        return lowered
+
+    @classmethod
+    def _section_variants(cls, section: str) -> List[str]:
+        variants = [section]
+        if section == "今週の Top Picks":
+            variants.extend(["今週のTop Picks", "今週のTopPicks", "今週のトップピックス"])
+        if section == "Dataset / Benchmark":
+            variants.extend(["Dataset/Benchmark", "Dataset & Benchmark", "Dataset and Benchmark"])
+        if section == "Review & Big Picture":
+            variants.extend(["Review and Big Picture"])
+        return variants
+
+    @classmethod
+    def _has_required_sections(cls, text: str, sections: Sequence[str]) -> bool:
+        normalized_text = cls._normalize_for_section_match(text)
+        for section in sections:
+            normalized_variants = [
+                cls._normalize_for_section_match(v) for v in cls._section_variants(section)
+            ]
+            if not any(v and v in normalized_text for v in normalized_variants):
+                return False
+        return True
 
     def _build_fallback_content(
         self,
@@ -167,7 +197,7 @@ class NewsletterGenerator:
                 [
                     "",
                     f"## {section} (Fallback)",
-                    "- Gemini API に接続できなかったため、このセクションは簡易記録のみです。",
+                    "- LLM 生成が期待どおりに完了しなかったため、このセクションは簡易記録のみです。",
                 ]
             )
         lines.extend(

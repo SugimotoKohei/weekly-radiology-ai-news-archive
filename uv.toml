@@ -1,0 +1,8 @@
+# uv configuration
+#
+# NOTE:
+# This repository runs inside environments where `$HOME/.cache/uv` may be blocked.
+# Keep the cache within the workspace so `uv run ...` works without extra env vars.
+
+cache-dir = ".cache/uv"
+
