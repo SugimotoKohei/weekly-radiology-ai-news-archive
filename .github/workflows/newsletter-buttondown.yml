@@ -2,7 +2,8 @@ name: CT/MRI×AI Weekly (Buttondown)
 
 on:
   schedule:
-    - cron: "0 0 * * MON"
+    # GitHub Actions の cron は UTC。JST(月曜12:00) = UTC(月曜03:00)
+    - cron: "0 3 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -23,7 +24,10 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PUBMED_API_KEY: ${{ secrets.PUBMED_API_KEY }}
           BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
-          BUTTONDOWN_STATUS: draft
+          # 本番配信: GitHub Actions からの送信を明示的に許可する
+          BUTTONDOWN_ALLOW_ACTIONS_SEND: "true"
+          # Buttondown 側へ「送信直前」のステータスで投げる（ドラフトではなく配信）
+          BUTTONDOWN_STATUS: about_to_send
           NEWSLETTER_TEMPLATE_PATH: configs/base/newsletter_template.yaml
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/src
         run: uv run python scripts/run_pipeline.py
