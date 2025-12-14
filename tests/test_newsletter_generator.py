@@ -78,6 +78,7 @@ def test_generate_returns_fallback_when_invoke_fails(monkeypatch):
             abstract="Short abstract",
             journal="Test Journal",
             pub_year="2025",
+            pub_date="2025-11-09",
             authors=["A"],
             authors_total=1,
             affiliations=["Affiliation A"],

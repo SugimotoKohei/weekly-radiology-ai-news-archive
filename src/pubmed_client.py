@@ -17,6 +17,7 @@ class PubMedPaper:
     abstract: str
     journal: str
     pub_year: Optional[str]
+    pub_date: Optional[str]
     authors: List[str]
     authors_total: int
     affiliations: List[str]
@@ -78,7 +79,11 @@ class PubMedClient:
         title = self._get_text(art.find("ArticleTitle"))
         abstract = self._join_texts(art.findall(".//AbstractText"))
         journal = self._get_text(art.find(".//Journal/Title"))
-        pub_year = self._extract_year(art.find(".//JournalIssue/PubDate"))
+        journal_pub_date = art.find(".//JournalIssue/PubDate")
+        pub_year = self._extract_year(journal_pub_date)
+        pub_date = self._extract_pub_date(journal_pub_date) or self._extract_pub_date(
+            art.find(".//ArticleDate")
+        )
         pmid_el = article.find(".//PMID")
         pmid = self._get_text(pmid_el)
         link = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid else ""
@@ -91,6 +96,7 @@ class PubMedClient:
             abstract=abstract,
             journal=journal,
             pub_year=pub_year,
+            pub_date=pub_date,
             authors=authors,
             authors_total=authors_total,
             affiliations=affiliations,
@@ -118,6 +124,52 @@ class PubMedClient:
         if medline is not None and medline.text:
             return medline.text.strip().split(" ")[0]
         return None
+
+    @staticmethod
+    def _month_to_int(month: str) -> Optional[int]:
+        month_str = month.strip()
+        if not month_str:
+            return None
+        if month_str.isdigit():
+            value = int(month_str)
+            return value if 1 <= value <= 12 else None
+        lookup = {
+            "jan": 1,
+            "feb": 2,
+            "mar": 3,
+            "apr": 4,
+            "may": 5,
+            "jun": 6,
+            "jul": 7,
+            "aug": 8,
+            "sep": 9,
+            "oct": 10,
+            "nov": 11,
+            "dec": 12,
+        }
+        value = lookup.get(month_str.lower()[:3])
+        return value
+
+    @classmethod
+    def _extract_pub_date(cls, pub_date: Optional[ET.Element]) -> Optional[str]:
+        if pub_date is None:
+            return None
+        year = pub_date.findtext("Year", default="").strip()
+        if not year:
+            medline = pub_date.findtext("MedlineDate", default="").strip()
+            return medline or None
+
+        month = pub_date.findtext("Month", default="").strip()
+        day = pub_date.findtext("Day", default="").strip()
+
+        month_int = cls._month_to_int(month) if month else None
+        day_int = int(day) if day.isdigit() else None
+
+        if month_int is None:
+            return year
+        if day_int is None:
+            return f"{year}-{month_int:02d}"
+        return f"{year}-{month_int:02d}-{day_int:02d}"
 
     @staticmethod
     def _author_name(author: ET.Element) -> str:

@@ -72,6 +72,7 @@ def test_fetch_details_parses_minimal_fields(sample_xml):
     assert "First abstract" in first.abstract
     assert first.journal == "Radiology AI Journal"
     assert first.pub_year == "2025"
+    assert first.pub_date == "2025-01-15"
     assert first.authors == ["Taro Sato", "Hanako Tanaka"]
     assert first.authors_total == 2
     assert first.affiliations == ["Department of Radiology, Example University, Tokyo, Japan."]
@@ -79,6 +80,7 @@ def test_fetch_details_parses_minimal_fields(sample_xml):
 
     second = papers[1]
     assert second.pub_year == "2024"
+    assert second.pub_date == "2024 Jan-Feb"
     assert len(second.authors) == 3  # clipped to 3
     assert second.authors_total == 4
     assert second.affiliations == ["Imaging AI Lab, Sample Institute, Seoul, Republic of Korea."]
