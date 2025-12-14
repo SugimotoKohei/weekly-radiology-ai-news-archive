@@ -67,24 +67,53 @@ def _save_issue_markdown(date_str: str, issue_no: int, content: str) -> Path:
     return target
 
 
-def _inject_pubmed_links(markdown: str) -> str:
-    """Ensure each paper heading includes a PubMed link.
+def _normalize_pmid_links(markdown: str) -> str:
+    """Normalize PubMed links so the PMID digits are clickable.
 
-    Idempotent: if a heading already contains a markdown link, it is left unchanged.
+    Target format:
+      ### ... (PMID: [12345678](https://pubmed.ncbi.nlm.nih.gov/12345678/))
+
+    Handles older formats like:
+      ### ... (PMID: 12345678) ([PubMed](https://pubmed.ncbi.nlm.nih.gov/12345678/))
+      ### ... (PMID: 12345678)
     """
     import re
 
-    def repl(match: re.Match[str]) -> str:
-        line = match.group(0)
-        if "](" in line:
-            return line
-        pmid = match.group(1)
-        url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
-        return f"{line} ([PubMed]({url}))"
+    def _url(pmid: str) -> str:
+        return f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
 
-    # Match headings like: ### ... (PMID: 12345678)
-    pattern = re.compile(r"^### .*\(PMID:\s*(\d+)\)\s*$", re.MULTILINE)
-    return pattern.sub(repl, markdown)
+    # Case 1: already in desired form -> keep.
+    # Case 2: convert "PMID: 123) ([PubMed](...))" -> "PMID: [123](...)"
+    pattern_with_pubmed = re.compile(
+        r"^(### .*?)\(\s*PMID:\s*(\d+)\s*\)\s*\(\s*\[PubMed\]\(([^)]+)\)\s*\)\s*$",
+        re.MULTILINE,
+    )
+
+    def repl_with_pubmed(match: re.Match[str]) -> str:
+        prefix = match.group(1).rstrip()
+        if not prefix.endswith(" "):
+            prefix += " "
+        pmid = match.group(2)
+        url = match.group(3).strip()
+        return f"{prefix}(PMID: [{pmid}]({url}))"
+
+    markdown = pattern_with_pubmed.sub(repl_with_pubmed, markdown)
+
+    # Case 3: add link to bare PMID digits
+    pattern_bare = re.compile(
+        r"^(### .*?)\(\s*PMID:\s*(\d+)\s*\)\s*$",
+        re.MULTILINE,
+    )
+
+    def repl_bare(match: re.Match[str]) -> str:
+        prefix = match.group(1).rstrip()
+        if not prefix.endswith(" "):
+            prefix += " "
+        pmid = match.group(2)
+        return f"{prefix}(PMID: [{pmid}]({_url(pmid)}))"
+
+    markdown = pattern_bare.sub(repl_bare, markdown)
+    return markdown
 
 
 def _enforce_editorial_one_paragraph(markdown: str, *, max_chars: int = 480) -> str:
@@ -161,7 +190,7 @@ def _normalize_limitation_label(markdown: str) -> str:
 
 
 def _postprocess_newsletter(markdown: str) -> str:
-    markdown = _inject_pubmed_links(markdown)
+    markdown = _normalize_pmid_links(markdown)
     markdown = _remove_so_what(markdown)
     markdown = _normalize_limitation_label(markdown)
     markdown = _enforce_editorial_one_paragraph(markdown)

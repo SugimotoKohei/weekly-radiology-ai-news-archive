@@ -64,7 +64,10 @@ def extract_top_picks_titles(markdown: str, *, max_items: int = 3) -> List[str]:
     body = markdown[start:end]
 
     titles: List[str] = []
-    heading_re = re.compile(r"^###\s+(.+?)\s+\(PMID:\s*\d+\).*?$", flags=re.MULTILINE)
+    heading_re = re.compile(
+        r"^###\s+(.+?)\s+\(PMID:\s*(?:\[\s*)?\d+(?:\s*\]\([^)]+\))?\)\s*$",
+        flags=re.MULTILINE,
+    )
     for match in heading_re.finditer(body):
         title = match.group(1).strip()
         if title:
@@ -95,7 +98,7 @@ def extract_featured_top_pick(markdown: str) -> Optional[Dict[str, Any]]:
         return None
 
     heading_re = re.compile(
-        r"^###\s+(?P<title>.+?)\s+\(PMID:\s*(?P<pmid>\d+)\).*?$",
+        r"^###\s+(?P<title>.+?)\s+\(PMID:\s*(?:\[\s*)?(?P<pmid>\d+)(?:\s*\]\([^)]+\))?\)\s*$",
         flags=re.MULTILINE,
     )
     m = heading_re.search(top_picks_body)

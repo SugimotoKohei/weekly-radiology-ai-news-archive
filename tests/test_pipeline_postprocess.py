@@ -7,21 +7,21 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
-from src.pipeline import _enforce_editorial_one_paragraph, _inject_pubmed_links  # noqa: E402
+from src.pipeline import _enforce_editorial_one_paragraph, _normalize_pmid_links  # noqa: E402
 from src.pipeline import _normalize_limitation_label  # noqa: E402
 from src.pipeline import _remove_so_what  # noqa: E402
 
 
-def test_inject_pubmed_links_adds_link_to_heading():
+def test_normalize_pmid_links_adds_clickable_digits():
     text = "### Title (PMID: 12345678)\n\nBody\n"
-    out = _inject_pubmed_links(text)
-    assert "([PubMed](https://pubmed.ncbi.nlm.nih.gov/12345678/))" in out
+    out = _normalize_pmid_links(text)
+    assert "(PMID: [12345678](https://pubmed.ncbi.nlm.nih.gov/12345678/))" in out
 
 
-def test_inject_pubmed_links_is_idempotent_when_link_present():
+def test_normalize_pmid_links_converts_pubmed_suffix_form():
     text = "### Title (PMID: 12345678) ([PubMed](https://pubmed.ncbi.nlm.nih.gov/12345678/))\n"
-    out = _inject_pubmed_links(text)
-    assert out == text
+    out = _normalize_pmid_links(text)
+    assert out.strip() == "### Title (PMID: [12345678](https://pubmed.ncbi.nlm.nih.gov/12345678/))"
 
 
 def test_enforce_editorial_one_paragraph_keeps_only_first_paragraph():

@@ -21,7 +21,7 @@ def test_extract_top_picks_titles_finds_headings_in_section():
     md = """
 ## 今週の Top Picks
 
-### Paper A (PMID: 111) ([PubMed](https://pubmed.ncbi.nlm.nih.gov/111/))
+### Paper A (PMID: [111](https://pubmed.ncbi.nlm.nih.gov/111/))
 
 ### Paper B (PMID: 222)
 
@@ -72,7 +72,7 @@ def test_extract_featured_top_pick_parses_fields():
     md = """
 ## 今週の Top Picks
 
-### Paper A (PMID: 111) ([PubMed](https://pubmed.ncbi.nlm.nih.gov/111/))
+### Paper A (PMID: [111](https://pubmed.ncbi.nlm.nih.gov/111/))
 - **雑誌名**: Journal, 2025
 - **著者名**: A, B 他
 - **所属**: Inst
