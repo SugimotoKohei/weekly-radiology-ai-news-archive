@@ -46,6 +46,9 @@
 - `BUTTONDOWN_STATUS`（任意、既定: `draft`）
 - `BUTTONDOWN_ALLOW_ACTIONS_SEND`（任意、既定: false）
   - `true` のときのみ、GitHub Actions 上で `draft` 以外のステータスを許可する。
+- `EMAIL_BODY_FORMAT`（任意、既定: `html`）
+  - `html` の場合、Markdown からメール向け HTML を生成して Buttondown に送る。
+  - `markdown` の場合、Markdown をそのまま Buttondown に送る。
 - `SUMMARY_IMAGE_ENABLED`（任意、既定: false）
   - `true` のとき、Gemini 画像モデル（通称 “nano banana”）でサマリー画像（PNG）を生成して `issues/` に保存する。
 - `SUMMARY_IMAGE_MODEL`（任意、既定: `gemini-2.5-flash-image`）

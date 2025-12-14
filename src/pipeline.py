@@ -8,6 +8,7 @@ from typing import List, cast
 from dateutil import tz
 
 from src.buttondown_client import ButtondownClient, EmailStatus
+from src.email_renderer import EmailRenderContext, render_newsletter_html
 from src.newsletter_generator import (
     DEFAULT_TEMPLATE_PATH,
     NewsletterGenerator,
@@ -403,10 +404,27 @@ def run_pipeline() -> None:
     buttondown = ButtondownClient(api_key=_ensure_env("BUTTONDOWN_API_KEY"))
     subject = f"CT/MRI×AI Weekly #{issue_no} - {today_str}"
     email_status = cast(EmailStatus, buttondown_status)
+
+    email_body_format = os.getenv("EMAIL_BODY_FORMAT", "html").lower()
+    if email_body_format not in {"html", "markdown"}:
+        raise RuntimeError("EMAIL_BODY_FORMAT must be 'html' or 'markdown'")
+    if email_body_format == "html":
+        html = render_newsletter_html(
+            newsletter_md,
+            ctx=EmailRenderContext(
+                subject=subject,
+                date_str=today_str,
+                issue_no=issue_no,
+            ),
+        )
+        body_to_send = html
+    else:
+        body_to_send = newsletter_md
+
     try:
         resp = buttondown.send_email(
             subject=subject,
-            body=newsletter_md,
+            body=body_to_send,
             status=email_status,
         )
         resp_id = resp.get("id") if isinstance(resp, dict) else None

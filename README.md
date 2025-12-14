@@ -55,6 +55,7 @@ CT/MRI を扱う医用画像 AI（segmentation / detection / classification / re
 3. ニュースレター生成＋配信: `uv run python scripts/run_pipeline.py`.
    - ドラフト送信で止める場合は `BUTTONDOWN_STATUS=draft` を環境変数として渡す。
    - API キーなしで動作確認する場合は `uv run python scripts/run_pipeline.py --dry-run`（`issues/_dry_run_*.md` を生成）。
+   - メール本文をHTMLで送る場合は `EMAIL_BODY_FORMAT=html`（既定）。
 
 ※ `uv.toml` で `cache-dir=.cache/uv` を指定しているため、`uv run ...` は追加の環境変数なしで動作します。
 
