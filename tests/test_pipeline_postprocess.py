@@ -37,6 +37,17 @@ def test_enforce_editorial_one_paragraph_keeps_only_first_paragraph():
     assert "第一段落です" in out
 
 
+def test_enforce_editorial_one_paragraph_limits_to_three_sentences():
+    text = (
+        "## 総括・編集後記\n\n"
+        "1。2。3。4。5。\n"
+        "\n## 次\nx\n"
+    )
+    out = _enforce_editorial_one_paragraph(text)
+    assert "4。" not in out
+    assert "5。" not in out
+
+
 def test_remove_so_what_drops_lines_containing_so_what():
     text = "a\n* **So what**: b\nc\nSo what: d\ne\n"
     out = _remove_so_what(text)

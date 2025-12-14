@@ -122,6 +122,7 @@ def _enforce_editorial_one_paragraph(markdown: str, *, max_chars: int = 480) -> 
     If multiple paragraphs are present, keep only the first one.
     """
     import re
+    from typing import List
 
     header_re = re.compile(r"^##\s*総括・編集後記\s*$", re.MULTILINE)
     m = header_re.search(markdown)
@@ -152,6 +153,11 @@ def _enforce_editorial_one_paragraph(markdown: str, *, max_chars: int = 480) -> 
     first = (paragraphs[0] if paragraphs else "").strip()
     if not first:
         return markdown
+
+    # Enforce up to 3 sentences (heuristic). Keep punctuation.
+    sentence_parts: List[str] = [s.strip() for s in re.split(r"(?<=[。！？])", first) if s.strip()]
+    if len(sentence_parts) > 3:
+        first = "".join(sentence_parts[:3]).strip()
 
     if len(first) > max_chars:
         first = first[: max_chars - 1].rstrip() + "…"
