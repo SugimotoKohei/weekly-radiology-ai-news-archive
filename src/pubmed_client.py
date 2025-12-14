@@ -18,6 +18,7 @@ class PubMedPaper:
     journal: str
     pub_year: Optional[str]
     authors: List[str]
+    affiliations: List[str]
     link: str
 
     def to_dict(self) -> dict:
@@ -80,7 +81,9 @@ class PubMedClient:
         pmid_el = article.find(".//PMID")
         pmid = self._get_text(pmid_el)
         link = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid else ""
-        authors = self._extract_authors(art.findall(".//Author"))
+        author_elements = art.findall(".//Author")
+        authors = self._extract_authors(author_elements)
+        affiliations = self._extract_affiliations(author_elements)
         return PubMedPaper(
             pmid=pmid,
             title=title,
@@ -88,6 +91,7 @@ class PubMedClient:
             journal=journal,
             pub_year=pub_year,
             authors=authors,
+            affiliations=affiliations,
             link=link,
         )
 
@@ -125,6 +129,27 @@ class PubMedClient:
             if len(authors) >= max_authors:
                 break
         return authors
+
+    @staticmethod
+    def _extract_affiliations(
+        author_elements: Iterable[ET.Element],
+        *,
+        max_affiliations: int = 5,
+    ) -> List[str]:
+        seen: set[str] = set()
+        affiliations: List[str] = []
+        for author in author_elements:
+            for aff in author.findall(".//AffiliationInfo/Affiliation"):
+                text = (aff.text or "").strip()
+                if not text:
+                    continue
+                if text in seen:
+                    continue
+                seen.add(text)
+                affiliations.append(text)
+                if len(affiliations) >= max_affiliations:
+                    return affiliations
+        return affiliations
 
 
 __all__ = ["PubMedClient", "PubMedPaper"]

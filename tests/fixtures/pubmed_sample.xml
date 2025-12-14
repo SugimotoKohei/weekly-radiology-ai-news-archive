@@ -22,10 +22,16 @@
           <Author>
             <LastName>Sato</LastName>
             <ForeName>Taro</ForeName>
+            <AffiliationInfo>
+              <Affiliation>Department of Radiology, Example University, Tokyo, Japan.</Affiliation>
+            </AffiliationInfo>
           </Author>
           <Author>
             <LastName>Tanaka</LastName>
             <ForeName>Hanako</ForeName>
+            <AffiliationInfo>
+              <Affiliation>Department of Radiology, Example University, Tokyo, Japan.</Affiliation>
+            </AffiliationInfo>
           </Author>
         </AuthorList>
       </Article>
@@ -51,6 +57,9 @@
           <Author>
             <LastName>Lee</LastName>
             <ForeName>Chris</ForeName>
+            <AffiliationInfo>
+              <Affiliation>Imaging AI Lab, Sample Institute, Seoul, Republic of Korea.</Affiliation>
+            </AffiliationInfo>
           </Author>
           <Author>
             <LastName>Kim</LastName>

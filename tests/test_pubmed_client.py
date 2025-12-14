@@ -73,8 +73,10 @@ def test_fetch_details_parses_minimal_fields(sample_xml):
     assert first.journal == "Radiology AI Journal"
     assert first.pub_year == "2025"
     assert first.authors == ["Taro Sato", "Hanako Tanaka"]
+    assert first.affiliations == ["Department of Radiology, Example University, Tokyo, Japan."]
     assert first.link.endswith("12345678/")
 
     second = papers[1]
     assert second.pub_year == "2024"
     assert len(second.authors) == 3  # clipped to 3
+    assert second.affiliations == ["Imaging AI Lab, Sample Institute, Seoul, Republic of Korea."]
