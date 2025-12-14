@@ -57,6 +57,76 @@ def _save_issue_markdown(date_str: str, issue_no: int, content: str) -> Path:
     return target
 
 
+def _inject_pubmed_links(markdown: str) -> str:
+    """Ensure each paper heading includes a PubMed link.
+
+    Idempotent: if a heading already contains a markdown link, it is left unchanged.
+    """
+    import re
+
+    def repl(match: re.Match[str]) -> str:
+        line = match.group(0)
+        if "](" in line:
+            return line
+        pmid = match.group(1)
+        url = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
+        return f"{line} ([PubMed]({url}))"
+
+    # Match headings like: ### ... (PMID: 12345678)
+    pattern = re.compile(r"^### .*\(PMID:\s*(\d+)\)\s*$", re.MULTILINE)
+    return pattern.sub(repl, markdown)
+
+
+def _enforce_editorial_one_paragraph(markdown: str, *, max_chars: int = 480) -> str:
+    """Coerce the editorial section to a single paragraph.
+
+    If multiple paragraphs are present, keep only the first one.
+    """
+    import re
+
+    header_re = re.compile(r"^##\s*総括・編集後記\s*$", re.MULTILINE)
+    m = header_re.search(markdown)
+    if not m:
+        return markdown
+
+    start = m.end()
+    rest = markdown[start:]
+    next_header = re.search(r"^\s*##\s+", rest, flags=re.MULTILINE)
+    end = start + (next_header.start() if next_header else len(rest))
+
+    body = markdown[start:end]
+    lines = [ln.rstrip() for ln in body.splitlines()]
+
+    # Split into paragraphs by blank lines.
+    paragraphs: list[str] = []
+    buf: list[str] = []
+    for ln in lines:
+        if ln.strip() == "":
+            if buf:
+                paragraphs.append(" ".join(s.strip() for s in buf if s.strip()))
+                buf = []
+            continue
+        buf.append(ln)
+    if buf:
+        paragraphs.append(" ".join(s.strip() for s in buf if s.strip()))
+
+    first = (paragraphs[0] if paragraphs else "").strip()
+    if not first:
+        return markdown
+
+    if len(first) > max_chars:
+        first = first[: max_chars - 1].rstrip() + "…"
+
+    new_body = "\n\n" + first + "\n"
+    return markdown[:start] + new_body + markdown[end:]
+
+
+def _postprocess_newsletter(markdown: str) -> str:
+    markdown = _inject_pubmed_links(markdown)
+    markdown = _enforce_editorial_one_paragraph(markdown)
+    return markdown
+
+
 def run_dry_run(*, fixture_path: Path) -> Path:
     """Dry-run that avoids network calls and creates a debug markdown in issues/."""
 
@@ -136,6 +206,7 @@ def run_pipeline() -> None:
     template = NewsletterTemplate.from_file(template_path)
     generator = NewsletterGenerator(api_key=_ensure_env("GEMINI_API_KEY"), template=template)
     newsletter_md = generator.generate(papers, today_str)
+    newsletter_md = _postprocess_newsletter(newsletter_md)
 
     issues_path = _issues_dir()
     issue_no = _next_issue_number(issues_path)

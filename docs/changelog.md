@@ -14,6 +14,7 @@
 - `issues/_dry_run_*.md` が誤ってコミットされないよう `.gitignore` に追加した。
 - LLM 出力の必須セクション検証を、見出し表記ゆれ（例: `今週のTop Picks`, `Dataset/Benchmark`）に強くした。
 - `configs/base/newsletter_template.yaml` の system prompt を修正し、固定見出しを `## ` 付きで出力するよう明示した。
+- 各論文見出し行に PubMed リンクを自動付与し、`総括・編集後記` を1パラグラフへ丸める後処理を追加した。
 
 ## 2025-11-08
 - `uv run pytest` を実行し、PubMed クライアントの既存テスト 2 件が通過することを確認した。
