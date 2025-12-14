@@ -134,9 +134,26 @@ def _remove_so_what(markdown: str) -> str:
     return "\n".join(kept)
 
 
+def _normalize_limitation_label(markdown: str) -> str:
+    """Remove English parenthetical from the limitation label, if present."""
+    import re
+
+    patterns = [
+        r"限界\s*（\s*limitation\s*）\s*[:：]",
+        r"限界\s*\(\s*limitation\s*\)\s*[:：]",
+    ]
+    out = markdown
+    for pat in patterns:
+        out = re.sub(pat, "限界:", out, flags=re.IGNORECASE)
+    # Normalize spacing after the label.
+    out = re.sub(r"限界:\s*", "限界: ", out)
+    return out
+
+
 def _postprocess_newsletter(markdown: str) -> str:
     markdown = _inject_pubmed_links(markdown)
     markdown = _remove_so_what(markdown)
+    markdown = _normalize_limitation_label(markdown)
     markdown = _enforce_editorial_one_paragraph(markdown)
     return markdown
 

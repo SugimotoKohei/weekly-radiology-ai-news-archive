@@ -8,6 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 from src.pipeline import _enforce_editorial_one_paragraph, _inject_pubmed_links  # noqa: E402
+from src.pipeline import _normalize_limitation_label  # noqa: E402
 from src.pipeline import _remove_so_what  # noqa: E402
 
 
@@ -40,3 +41,12 @@ def test_remove_so_what_drops_lines_containing_so_what():
     out = _remove_so_what(text)
     assert "So what" not in out
     assert out.splitlines() == ["a", "c", "e"]
+
+
+def test_normalize_limitation_label_removes_english_parenthetical():
+    text = "* 限界（Limitation）: abc\n* 限界(limitation)： def\n"
+    out = _normalize_limitation_label(text)
+    assert "（Limitation）" not in out
+    assert "(limitation)" not in out.lower()
+    assert "* 限界: abc" in out
+    assert "* 限界: def" in out
