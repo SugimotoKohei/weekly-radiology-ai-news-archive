@@ -79,6 +79,7 @@ def test_generate_returns_fallback_when_invoke_fails(monkeypatch):
             journal="Test Journal",
             pub_year="2025",
             authors=["A"],
+            authors_total=1,
             affiliations=["Affiliation A"],
             link="https://example.com",
         )

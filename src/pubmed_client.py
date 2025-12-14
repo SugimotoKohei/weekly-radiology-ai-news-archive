@@ -18,6 +18,7 @@ class PubMedPaper:
     journal: str
     pub_year: Optional[str]
     authors: List[str]
+    authors_total: int
     affiliations: List[str]
     link: str
 
@@ -82,7 +83,7 @@ class PubMedClient:
         pmid = self._get_text(pmid_el)
         link = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid else ""
         author_elements = art.findall(".//Author")
-        authors = self._extract_authors(author_elements)
+        authors, authors_total = self._extract_authors(author_elements)
         affiliations = self._extract_affiliations(author_elements)
         return PubMedPaper(
             pmid=pmid,
@@ -91,6 +92,7 @@ class PubMedClient:
             journal=journal,
             pub_year=pub_year,
             authors=authors,
+            authors_total=authors_total,
             affiliations=affiliations,
             link=link,
         )
@@ -118,17 +120,28 @@ class PubMedClient:
         return None
 
     @staticmethod
-    def _extract_authors(author_elements: Iterable[ET.Element], max_authors: int = 3) -> List[str]:
-        authors: List[str] = []
+    def _author_name(author: ET.Element) -> str:
+        collective = author.findtext("CollectiveName", default="").strip()
+        if collective:
+            return collective
+        last = author.findtext("LastName", default="")
+        fore = author.findtext("ForeName", default="")
+        full = " ".join(part for part in [fore.strip(), last.strip()] if part)
+        return full.strip()
+
+    @classmethod
+    def _extract_authors(
+        cls,
+        author_elements: Iterable[ET.Element],
+        max_authors: int = 3,
+    ) -> tuple[List[str], int]:
+        all_authors: List[str] = []
         for author in author_elements:
-            last = author.findtext("LastName", default="")
-            fore = author.findtext("ForeName", default="")
-            full = " ".join(part for part in [fore.strip(), last.strip()] if part)
-            if full:
-                authors.append(full)
-            if len(authors) >= max_authors:
-                break
-        return authors
+            name = cls._author_name(author)
+            if name:
+                all_authors.append(name)
+        total = len(all_authors)
+        return all_authors[:max_authors], total
 
     @staticmethod
     def _extract_affiliations(
