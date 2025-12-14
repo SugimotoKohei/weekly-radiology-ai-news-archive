@@ -19,10 +19,6 @@ GEMINI_ENDPOINT = (
 )
 DEFAULT_REQUIRED_SECTIONS = [
     "今週の Top Picks",
-    "Method Spotlight",
-    "Dataset / Benchmark",
-    "Review & Big Picture",
-    "総括・編集後記",
 ]
 DEFAULT_TEMPLATE_PATH = (
     Path(__file__).resolve().parents[1] / "configs" / "base" / "newsletter_template.yaml"
