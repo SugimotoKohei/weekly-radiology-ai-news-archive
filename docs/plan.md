@@ -44,3 +44,9 @@
 - `BUTTONDOWN_STATUS`（任意、既定: `draft`）
 - `BUTTONDOWN_ALLOW_ACTIONS_SEND`（任意、既定: false）
   - `true` のときのみ、GitHub Actions 上で `draft` 以外のステータスを許可する。
+- `SUMMARY_IMAGE_ENABLED`（任意、既定: false）
+  - `true` のとき、Gemini 画像モデル（通称 “nano banana”）でサマリー画像（PNG）を生成して `issues/` に保存する。
+- `SUMMARY_IMAGE_MODEL`（任意、既定: `gemini-2.5-flash-image`）
+- `SUMMARY_IMAGE_ASPECT_RATIO`（任意、既定: `16:9`）
+- `SUMMARY_IMAGE_EMBED`（任意、既定: false）
+  - `true` のとき、生成した画像を GitHub raw URL で本文先頭に埋め込む（Actions 実行時のみ推奨）。

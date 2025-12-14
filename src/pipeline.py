@@ -14,6 +14,15 @@ from src.newsletter_generator import (
     NewsletterTemplate,
 )
 from src.pubmed_client import PubMedClient
+from src.summary_image_generator import (
+    SummaryImageSpec,
+    build_github_raw_url,
+    build_summary_image_prompt,
+    default_summary_image_path,
+    extract_top_picks_titles,
+    generate_summary_image_bytes,
+    maybe_prepend_summary_image,
+)
 
 DEFAULT_QUERY = (
     "(deep learning[Title/Abstract] OR artificial intelligence[Title/Abstract])"
@@ -241,6 +250,38 @@ def run_pipeline() -> None:
 
     issues_path = _issues_dir()
     issue_no = _next_issue_number(issues_path)
+
+    # Optional: generate a summary image using a Gemini image model (aka "nano banana").
+    if os.getenv("SUMMARY_IMAGE_ENABLED", "").lower() in {"1", "true", "yes"}:
+        top_picks = extract_top_picks_titles(newsletter_md, max_items=3)
+        spec = SummaryImageSpec(date_str=today_str, issue_no=issue_no, top_picks=top_picks)
+        prompt = build_summary_image_prompt(spec)
+
+        image_model = os.getenv("SUMMARY_IMAGE_MODEL", "gemini-2.5-flash-image")
+        aspect_ratio = os.getenv("SUMMARY_IMAGE_ASPECT_RATIO", "16:9")
+        png_bytes = generate_summary_image_bytes(
+            api_key=_ensure_env("GEMINI_API_KEY"),
+            prompt=prompt,
+            model=image_model,
+            aspect_ratio=aspect_ratio,
+        )
+        image_path = default_summary_image_path(
+            issues_dir=issues_path, date_str=today_str, issue_no=issue_no
+        )
+        image_path.write_bytes(png_bytes)
+        print(f"[INFO] Saved summary image to {image_path}")
+
+        if os.getenv("SUMMARY_IMAGE_EMBED", "").lower() in {"1", "true", "yes"}:
+            repo = os.getenv("GITHUB_REPOSITORY", "")
+            ref = os.getenv("GITHUB_REF_NAME", "main")
+            if repo:
+                raw_url = build_github_raw_url(
+                    repo=repo, ref=ref, path=str(image_path.relative_to(Path(__file__).resolve().parents[1]))
+                )
+                newsletter_md = maybe_prepend_summary_image(newsletter_md, image_url=raw_url)
+            else:
+                print("[WARN] SUMMARY_IMAGE_EMBED is set but GITHUB_REPOSITORY is missing; skipping embed.")
+
     md_path = _save_issue_markdown(today_str, issue_no, newsletter_md)
     print(f"[INFO] Saved newsletter markdown to {md_path}")
 
