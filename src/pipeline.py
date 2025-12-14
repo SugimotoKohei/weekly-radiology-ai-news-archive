@@ -19,6 +19,7 @@ from src.summary_image_generator import (
     build_github_raw_url,
     build_summary_image_prompt,
     default_summary_image_path,
+    extract_featured_top_pick,
     extract_top_picks_titles,
     generate_summary_image_bytes,
     maybe_prepend_summary_image,
@@ -253,8 +254,50 @@ def run_pipeline() -> None:
 
     # Optional: generate a summary image using a Gemini image model (aka "nano banana").
     if os.getenv("SUMMARY_IMAGE_ENABLED", "").lower() in {"1", "true", "yes"}:
-        top_picks = extract_top_picks_titles(newsletter_md, max_items=3)
-        spec = SummaryImageSpec(date_str=today_str, issue_no=issue_no, top_picks=top_picks)
+        import re
+
+        featured = extract_featured_top_pick(newsletter_md) or {}
+        journal, year = ("", "")
+        if featured.get("journal"):
+            # Try to split "<journal>, 2025" into parts.
+            m = re.match(r"^(.*?)(?:,\s*(\d{4}))\s*$", str(featured.get("journal")))
+            if m:
+                journal, year = m.group(1).strip(), m.group(2).strip()
+            else:
+                journal = str(featured.get("journal"))
+
+        setting = {
+            "Study design": "Not specified",
+            "Population": str(featured.get("data") or "Not specified"),
+            "Exclusion criteria": "Not specified",
+            "Data source / Setting": str(featured.get("affiliations") or "Not specified"),
+            "Primary outcome": str(featured.get("task") or "Not specified"),
+            "Key secondary outcomes": "Not specified",
+            "Statistical methods": "Not specified",
+        }
+
+        results_text = str(featured.get("results") or "")
+        key_results = []
+        if results_text:
+            key_results = [s.strip() for s in re.split(r"[。.\n]+", results_text) if s.strip()][:3]
+        discussion = str(featured.get("novelty") or "")
+        limitation = str(featured.get("limitation") or "")
+        conclusion = str(featured.get("results") or "")
+
+        spec = SummaryImageSpec(
+            date_str=today_str,
+            issue_no=issue_no,
+            featured_title=str(featured.get("title") or "Top Pick"),
+            featured_pmid=str(featured.get("pmid") or ""),
+            featured_authors=str(featured.get("authors") or ""),
+            featured_journal=journal,
+            featured_year=year,
+            setting=setting,
+            key_results=key_results,
+            discussion=discussion,
+            limitation=limitation,
+            conclusion=conclusion,
+        )
         prompt = build_summary_image_prompt(spec)
 
         image_model = os.getenv("SUMMARY_IMAGE_MODEL", "gemini-2.5-flash-image")
