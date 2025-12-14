@@ -34,6 +34,9 @@ def test_has_required_sections_is_robust_to_heading_variants():
     text = """
 ## 今週のTop Picks
 - a
+
+## 総括・編集後記
+- e
 """.strip()
     assert NewsletterGenerator._has_required_sections(text, DEFAULT_REQUIRED_SECTIONS)
 
