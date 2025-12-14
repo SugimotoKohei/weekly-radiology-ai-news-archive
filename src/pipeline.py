@@ -23,7 +23,7 @@ from src.summary_image_generator import (
     extract_featured_top_pick,
     extract_top_picks_titles,
     generate_summary_image_bytes,
-    maybe_prepend_summary_image,
+    insert_summary_image_after_top_picks,
 )
 
 DEFAULT_QUERY = (
@@ -383,7 +383,7 @@ def run_pipeline() -> None:
                 raw_url = build_github_raw_url(
                     repo=repo, ref=ref, path=str(image_path.relative_to(Path(__file__).resolve().parents[1]))
                 )
-                newsletter_md = maybe_prepend_summary_image(newsletter_md, image_url=raw_url)
+                newsletter_md = insert_summary_image_after_top_picks(newsletter_md, image_url=raw_url)
             else:
                 print("[WARN] SUMMARY_IMAGE_EMBED is set but GITHUB_REPOSITORY is missing; skipping embed.")
 

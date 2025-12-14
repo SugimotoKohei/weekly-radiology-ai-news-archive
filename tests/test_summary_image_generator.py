@@ -13,7 +13,7 @@ from src.summary_image_generator import (  # noqa: E402
     build_summary_image_prompt,
     extract_featured_top_pick,
     extract_top_picks_titles,
-    maybe_prepend_summary_image,
+    insert_summary_image_after_top_picks,
 )
 
 
@@ -55,11 +55,11 @@ def test_build_summary_image_prompt_contains_required_text():
     assert "#008" in prompt
 
 
-def test_maybe_prepend_summary_image_is_idempotent():
-    md = "body"
+def test_insert_summary_image_after_top_picks_is_idempotent():
+    md = "## 今週の Top Picks\n\n### A (PMID: [1](https://pubmed.ncbi.nlm.nih.gov/1/))\n\n## 総括・編集後記\nx\n"
     url = "https://example.com/x.png"
-    out1 = maybe_prepend_summary_image(md, image_url=url)
-    out2 = maybe_prepend_summary_image(out1, image_url=url)
+    out1 = insert_summary_image_after_top_picks(md, image_url=url)
+    out2 = insert_summary_image_after_top_picks(out1, image_url=url)
     assert out1 == out2
 
 
@@ -91,3 +91,18 @@ def test_extract_featured_top_pick_parses_fields():
     assert featured["pmid"] == "111"
     assert featured["journal"] == "Journal, 2025"
     assert featured["authors"] == "A, B 他"
+
+
+def test_insert_summary_image_after_top_picks_places_before_editorial():
+    md = """
+## 今週の Top Picks
+
+### Paper A (PMID: [111](https://pubmed.ncbi.nlm.nih.gov/111/))
+- **雑誌名**: J
+
+## 総括・編集後記
+E
+""".strip()
+    out = insert_summary_image_after_top_picks(md, image_url="https://example.com/s.png")
+    # Image should appear before the editorial header.
+    assert out.index("![Summary](https://example.com/s.png)") < out.index("## 総括・編集後記")

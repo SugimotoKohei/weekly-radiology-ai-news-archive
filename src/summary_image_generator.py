@@ -368,13 +368,37 @@ def default_summary_image_path(*, issues_dir: Path, date_str: str, issue_no: int
     return issues_dir / f"{date_str}_ct-mri-ai-weekly-{issue_no:03d}_summary.png"
 
 
-def maybe_prepend_summary_image(markdown: str, *, image_url: str) -> str:
+def insert_summary_image_after_top_picks(markdown: str, *, image_url: str) -> str:
+    """Insert the summary image after the Top Picks section.
+
+    Intended placement:
+    - After the last Top Pick paper block
+    - Before the next `##` section (e.g., editorial)
+    """
     if not image_url:
         return markdown
-    # Avoid double-prepending if rerun.
-    if markdown.lstrip().startswith("![Summary]("):
+    image_md = f"![Summary]({image_url})"
+    if image_md in markdown:
         return markdown
-    return f"![Summary]({image_url})\n\n{markdown}"
+
+    top_picks = _extract_section(markdown, "今週の Top Picks")
+    if not top_picks.strip():
+        # If the section is missing, append at the end.
+        return markdown.rstrip() + "\n\n" + image_md + "\n"
+
+    # Find the Top Picks section range in the full markdown.
+    header_re = re.compile(r"^##\s*今週の\s*Top\s*Picks\s*$", flags=re.MULTILINE)
+    m = header_re.search(markdown)
+    if not m:
+        return markdown.rstrip() + "\n\n" + image_md + "\n"
+    start = m.end()
+    rest = markdown[start:]
+    next_header = re.search(r"^\s*##\s+", rest, flags=re.MULTILINE)
+    end = start + (next_header.start() if next_header else len(rest))
+
+    before = markdown[:end].rstrip()
+    after = markdown[end:].lstrip("\n")
+    return before + "\n\n" + image_md + "\n\n" + after
 
 
 def build_github_raw_url(*, repo: str, ref: str, path: str) -> str:

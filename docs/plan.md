@@ -54,4 +54,4 @@
 - `SUMMARY_IMAGE_MODEL`（任意、既定: `gemini-2.5-flash-image`）
 - `SUMMARY_IMAGE_ASPECT_RATIO`（任意、既定: `16:9`）
 - `SUMMARY_IMAGE_EMBED`（任意、既定: false）
-  - `true` のとき、生成した画像を GitHub raw URL で本文先頭に埋め込む（Actions 実行時のみ推奨）。
+  - `true` のとき、生成した画像を GitHub raw URL で **Top Picks の後（編集後記の前）** に埋め込む（Actions 実行時のみ推奨）。
