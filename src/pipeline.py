@@ -189,10 +189,36 @@ def _normalize_limitation_label(markdown: str) -> str:
     return out
 
 
+def _normalize_journal_label(markdown: str) -> str:
+    """Remove year suffix from the journal label line, if present.
+
+    Examples:
+      **雑誌名**: Journal Name (2025)  -> **雑誌名**: Journal Name
+      **雑誌名**: Journal Name, 2025  -> **雑誌名**: Journal Name
+    """
+    import re
+
+    lines = markdown.splitlines()
+    out_lines: list[str] = []
+    pattern = re.compile(r"^(\s*[-*]\s+\*\*雑誌名\*\*:\s*)(.+?)\s*$")
+    for line in lines:
+        m = pattern.match(line)
+        if not m:
+            out_lines.append(line)
+            continue
+        prefix = m.group(1)
+        value = m.group(2).strip()
+        value = re.sub(r"\s*\(\s*\d{4}\s*\)\s*$", "", value)
+        value = re.sub(r"\s*,\s*\d{4}\s*$", "", value)
+        out_lines.append(f"{prefix}{value}")
+    return "\n".join(out_lines)
+
+
 def _postprocess_newsletter(markdown: str) -> str:
     markdown = _normalize_pmid_links(markdown)
     markdown = _remove_so_what(markdown)
     markdown = _normalize_limitation_label(markdown)
+    markdown = _normalize_journal_label(markdown)
     markdown = _enforce_editorial_one_paragraph(markdown)
     return markdown
 

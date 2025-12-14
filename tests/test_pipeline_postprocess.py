@@ -8,6 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 from src.pipeline import _enforce_editorial_one_paragraph, _normalize_pmid_links  # noqa: E402
+from src.pipeline import _normalize_journal_label  # noqa: E402
 from src.pipeline import _normalize_limitation_label  # noqa: E402
 from src.pipeline import _remove_so_what  # noqa: E402
 
@@ -50,3 +51,16 @@ def test_normalize_limitation_label_removes_english_parenthetical():
     assert "(limitation)" not in out.lower()
     assert "* 限界: abc" in out
     assert "* 限界: def" in out
+
+
+def test_normalize_journal_label_removes_year_suffix():
+    text = (
+        "* **雑誌名**: Some Journal (2025)\n"
+        "* **雑誌名**: Another Journal, 2024\n"
+        "* **雑誌名**: Keep As-Is\n"
+    )
+    out = _normalize_journal_label(text)
+    assert "* **雑誌名**: Some Journal" in out
+    assert "(2025)" not in out
+    assert ", 2024" not in out
+    assert "* **雑誌名**: Keep As-Is" in out
